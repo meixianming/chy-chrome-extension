@@ -1,0 +1,49 @@
+.App {
+	text-align: center;
+
+	button {
+		height: 40px;
+		line-height: 40px;
+		padding: 0px 8px;
+		background: #46a0fc;
+		border: 0px;
+		border-radius: 5px;
+		color: #fff;
+		font-size: 14px;
+		font-weight: bold;
+
+		&:disabled {
+			background: gray;
+		}
+	}
+
+	.count-down {
+		margin: 20px 0px;
+
+		button {
+			margin: 0 10px;
+		}
+	}
+
+	.dialog {
+		margin-top: 30px;
+
+		input {
+			height: 24px;
+			line-height: 24px;
+		}
+
+		div {
+			margin: 10px 0px;
+		}
+
+		#auth-code {
+			margin: 0px 10px;
+			vertical-align: middle;
+		}
+
+		.refresh {
+			margin-left: 10px;
+		}
+	}
+}

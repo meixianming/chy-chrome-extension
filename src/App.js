@@ -27,7 +27,7 @@ class App extends Component {
 		if(this.state.remainTime){
 			const t = this.state.remainTime - 1;
 			this.setState({
-				remainTime:t
+				remainTime:`0${t}`
 			},()=>{setTimeout(()=>{
 				this.countDown();
 			},1000)})
@@ -55,9 +55,9 @@ class App extends Component {
         var code = "";
         var codeLength = parseInt(length); //验证码的长度
         ////所有候选组成验证码的字符，当然也可以用中文的
-        var codeChars = new Array(0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
+        var codeChars = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
         'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',
-        'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'); 
+        'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']; 
         //循环组成验证码的字符串
         for (var i = 0; i < codeLength; i++)
         {
@@ -118,6 +118,10 @@ class App extends Component {
 			ctx.arc(this.randomNum(0, options.width), this.randomNum(0, options.height), 1, 0, 2 * Math.PI);
 			ctx.fill();
 		}
+
+		this.setState({
+			imgUrl:canvas.toDataURL("image/png")
+		})
 	};
 	/**随机数字**/
 	randomNum(min, max) {
@@ -139,7 +143,12 @@ class App extends Component {
 		return (
 			<div className="App">
 			<div className="count-down">
-				<span className="remain-time">剩余时间：{this.state.remainTime}</span>
+				<div className="remain-time">
+					配售开始时间 : <span>00</span>天
+					<span>00</span>时
+					<span>40</span>分
+					<span>{this.state.remainTime}</span>秒
+				</div>
 				<button onClick={()=>{this.setState({remainTime:5})}}>倒计时5s</button>
 				<button onClick={()=>{this.setState({remainTime:0})}}>立刻触发</button>
 			</div>
@@ -147,15 +156,16 @@ class App extends Component {
 				<button disabled={this.state.remainTime>0?true:false} onClick={(e)=>{this.createCode(4,e);this.setState({showDialog:true})}}>开始购买</button>
 			</div>
 			<div className="dialog" style={{display:this.state.showDialog?"block":"none"}}>
-				<div>你的最大购买数量为:{this.state.maxAmount}</div>
+				<div>你的最大购买数量为:<font className="max-amount">{this.state.maxAmount}</font></div>
 				<div className="amount">
-					<font>购买数量：</font>
+					购买数量：
 					<input type="number" onChange={(e)=>{this.handleNum(e)}}/>
 				</div>
 				<div className="verify-code">
-					<font>验证码：</font>
+					验证码：
 					<input type="text" onChange={(e)=>{this.handleCode(e)}}/>
-					<canvas id='auth-code'></canvas>
+					<canvas id='auth-code' style={{display:"none"}}></canvas>
+					<img src={this.state.imgUrl} alt="识别码图片"/>
 					<button className="refresh" onClick={(e)=>{this.createCode(4,e)}}>刷新验证码</button>
 				</div>
 				<button onClick={(e)=>this.verify(e)}>确定购买</button>

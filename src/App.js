@@ -6,7 +6,7 @@ class App extends Component {
 		super();
 		this.state = {
 			remainTime:10,
-			maxAmount:99,
+			maxAmount:"12,213,434",
 			showDialog:false,
 			code:"", //输入的验证码
 			num:"", // 填写的购买数量
@@ -21,7 +21,7 @@ class App extends Component {
 		this.randomColor.bind(this);
 		this.randomNum.bind(this);
 		this.timer = null;
-		
+		this.nodeIterator.bind(this);		
   	}
 	countDown(){
 		if(this.state.remainTime){
@@ -44,7 +44,8 @@ class App extends Component {
 		})
 	}
 	verify(){
-		if(this.state.code.toUpperCase()===this.state.options.txt.toUpperCase()&&this.state.num<=this.state.maxAmount){
+		// if(this.state.code.toUpperCase()===this.state.options.txt.toUpperCase()&&this.state.num<=this.state.maxAmount){
+		if(this.state.num<=this.state.maxAmount){	
 			alert("验证成功");
 		}
 		else{
@@ -134,8 +135,79 @@ class App extends Component {
 		let b = this.randomNum(min, max);
 		return "rgb(" + r + "," + g + "," + b + ")";
 	}
-		
+	nodeIterator(matchContent,type="text",tagName){
+		if(type==="text"){
+			// 精准匹配文本
+			let nodeIterator = document.createNodeIterator(
+				document.body,
+				NodeFilter.SHOW_ELEMENT,
+				(node) => {
+					return node.textContent.includes(matchContent)
+						&& node.nodeName.toLowerCase() !== 'script' // not interested in the script
+						&& node.children.length === 0 // this is the last node
+						? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+				}
+			);
+			let pars = [];
+			let currentNode;
+			while (currentNode = nodeIterator.nextNode()){
+				pars.push(currentNode);
+			}
+			if(pars.length!==1){
+				console.log(`${matchContent}匹配不正确`)
+			}
+			return pars[0];
+		}
+		else{
+			// 通过兄弟文本，查找所需dom元素，如查找没有文本input框，只能通过先查找他的兄弟元素的方式
+			let nodeIterator = document.createNodeIterator(
+				document.body,
+				NodeFilter.SHOW_ELEMENT,
+				(node) => {
+					return node.tagName===tagName
+						&& node.nodeName.toLowerCase() !== 'script' // not interested in the script
+						&& node.children.length === 0 // this is the last node
+						? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+				}
+			);
+			let pars = [];
+			let currentNode;
+			while (currentNode = nodeIterator.nextNode()){
+				if(currentNode.parentNode.textContent.includes(matchContent)){
+					// 父元素包含要匹配兄弟元素文本，说明该标签是要查找的dom元素
+					pars.push(currentNode);
+				}
+			}	
+			if(pars.length!==1){
+				console.log(`${matchContent}匹配不正确`)
+			}
+			return pars[0];
+		}	
+	}	
 	componentDidMount(){
+		// const buyNow = this.nodeIterator("Buy now");
+		// let buyNowInterval = setInterval(()=>{
+		// 	if(!buyNow.disabled){
+		// 		console.log("触发点击buy now 按钮，弹出dialog")
+		// 		buyNow.click();
+		// 		clearInterval(buyNowInterval);
+		// 		setTimeout(()=>{	
+		// 			const maxAmount =this.nodeIterator("Max purchase amount").textContent.replace(/[^0-9]/ig,"");
+		// 			console.log(`获取到最单购买数量为${maxAmount}`);
+		// 			const purchaseInput = this.nodeIterator("Purchase amount","Sibling","INPUT")||this.nodeIterator("Purchase amount");
+		// 			console.log(`捕捉到purchase amount的INPUT框`);
+		// 			purchaseInput.value=maxAmount;
+		// 			console.log(`purchase Input框写入最大购买数量`);
+		// 			const verifyInput = this.nodeIterator("Enter verification code","Sibling","INPUT")||this.nodeIterator("Enter verification code");
+		// 			console.log(`捕捉到verify code的INPUT框`);
+		// 			verifyInput.value = "mei";
+		// 			const confirmBtn = this.nodeIterator("Confirm Purchase");
+		// 			setTimeout(()=>{
+		// 				confirmBtn.click();
+		// 			},2000)
+		// 		},2000)
+		// 	}
+		// },2000)
 		this.countDown();  
 		this.createCode(4);  
 	}
@@ -144,31 +216,31 @@ class App extends Component {
 			<div className="App">
 			<div className="count-down">
 				<div className="remain-time">
-					配售开始时间 : <span>00</span>天
-					<span>00</span>时
-					<span>40</span>分
-					<span>{this.state.remainTime}</span>秒
+					Starts In : <span>00</span>d
+					<span>00</span>h
+					<span>00</span>m
+					<span>{this.state.remainTime}</span>s
 				</div>
-				<button onClick={()=>{this.setState({remainTime:5})}}>倒计时5s</button>
 				<button onClick={()=>{this.setState({remainTime:0})}}>立刻触发</button>
 			</div>
 			<div className="purchase-btn">
-				<button disabled={this.state.remainTime>0?true:false} onClick={(e)=>{this.createCode(4,e);this.setState({showDialog:true})}}>开始购买</button>
+				<button disabled={this.state.remainTime>0?true:false} onClick={(e)=>{this.createCode(4,e);this.setState({showDialog:true})}}>Buy now</button>
 			</div>
 			<div className="dialog" style={{display:this.state.showDialog?"block":"none"}}>
-				<div>你的最大购买数量为:<font className="max-amount">{this.state.maxAmount}</font></div>
+				<div>Your current balance:<font className="max-amount">111,111 BNB</font></div>
+				<div style={{color:"yellow"}}>Max purchase amount {this.state.maxAmount} FET</div>
 				<div className="amount">
-					购买数量：
+					Purchase amount
 					<input type="number" onChange={(e)=>{this.handleNum(e)}}/>
 				</div>
 				<div className="verify-code">
-					验证码：
+					Enter verification code
 					<input type="text" onChange={(e)=>{this.handleCode(e)}}/>
 					<canvas id='auth-code' style={{display:"none"}}></canvas>
 					<img src={this.state.imgUrl} alt="识别码图片"/>
 					<button className="refresh" onClick={(e)=>{this.createCode(4,e)}}>刷新验证码</button>
 				</div>
-				<button onClick={(e)=>this.verify(e)}>确定购买</button>
+				<button onClick={(e)=>this.verify(e)}>Confirm Purchase</button>
 			</div>
 			</div>
 		);

@@ -8,14 +8,25 @@
 		"48": "icon.png",
 		"128": "icon.png"
 	},
-	"browser_action": {
+	// 当某些特定页面打开才显示的图标
+	"page_action": {
 		"default_icon": "icon.png",
+		"default_title": "我是pageAction",
 		"default_popup": "popup.html"
 	},
+	// 权限申请
+	"permissions": [
+		"declarativeContent",
+		"notifications", // 通知
+		"webRequest" // web请求
+	],
+	"background": {
+		"scripts": ["js/background.js"]
+	},
 	"content_scripts": [{
-		// "matches": ["https://www.baidu.com/*"],
-		"matches": ["<all_urls>"],
-		"js": ["content-script.js"]
+		"matches": ["http://localhost/*", "https://launchpad.binance.com/en/project/*", "https://launchpad.binance.com/cn/project/*", "http://152.136.95.92/chrome-extension/"],
+		// "matches": ["<all_urls>"],
+		"js": ["js/html2canvas.min.js", "js/content-script.js"]
 	}],
 	"web_accessible_resources": [
 		"inject.js"

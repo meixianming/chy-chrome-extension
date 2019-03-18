@@ -53,12 +53,84 @@
 	let config = Object.assign({},{
 		intervalTime:2000,
 		buyText:"Buy now",
-		maxNumText:"Max purchase amount",
-		numberText:"Purchase amount",
 		verifyCodeText:"Enter verification code",
+		purchaseNum:1000,
 		confirmText:"Confirm Purchase"
-	},JSON.parse(localStorage.getItem("binanceConfig")))
+	},JSON.parse(localStorage.getItem("binanceConfig")));
+
+	let purchaseNumContent = {
+		x:"",
+		y:""
+	}
+	let detectContent = {
+		x:"",
+		y:"",
+		text:""
+	}
 	let buyNowInterval;
+	const getImg = ()=>{  // 本地服务器截图
+		$.post("http://localhost:8888/window_capture", 
+			{},function(result){
+				result=JSON.parse(result);
+				console.log(result.img_url);
+				locate_boxes(result.img_url);
+		});
+	}
+	const locate_boxes = (image_url)=>{ //识别文本框接口
+		$.post("http://e23a977869.zicp.vip/locate_boxes", 
+			{
+				image_url:image_url,
+				image_name:"test"
+			},function(result){
+				result=JSON.parse(result);		
+				purchaseNumContent.x = result.text_box_location.center_x;
+				purchaseNumContent.y = result.text_box_location.center_y;
+				detectContent.x = result.captcha_box_location.center_x;
+				detectContent.y = result.captcha_box_location.center_y;
+				startPurchase()
+		});
+	}
+	const detect_captcha_code = ()=>{ //识别验证码
+		const img = nodeIterator(config.verifyCodeText,"Sibling","IMG")||nodeIterator(config.verifyCodeText);
+		console.log("捕捉到验证码图片")
+		$.post("http://e23a977869.zicp.vip/detect_captcha_code", 
+			{
+				image_url:img.src,
+				image_name:"test"
+			},function(result){
+				result=JSON.parse(result)
+				detectContent.text = result.captcha_code;
+				startDetect();	
+		});
+		// // detectContent.text = "mei";
+		// startDetect();
+	}
+	const startDetect = ()=>{  //本地服务器调用系统权限移动鼠标，输入文字
+		$.post("http://localhost:8888/input_text", {
+			x: detectContent.x,
+			y: detectContent.y,
+			text: detectContent.text
+		},function(result){
+				if(JSON.parse(result).code===200){
+					/*startPurchase()*/
+					const confirmBtn = nodeIterator(config.confirmText);
+					setTimeout(()=>{
+						confirmBtn.click();
+					},2000)
+				}		
+		});
+	}
+	const startPurchase = ()=>{  //本地服务器调用系统权限移动鼠标，输入文字
+		$.post("http://localhost:8888/input_text", {
+			x:purchaseNumContent.x,
+			y:purchaseNumContent.y,
+			text:config.purchaseNum
+		},function(result){
+				if(JSON.parse(result).code===200){
+					detect_captcha_code()
+				}		
+		});
+	}
 	const init = ()=>{
 		let buyNow = nodeIterator(config.buyText);
 		if(buyNow){
@@ -76,27 +148,7 @@
 				buyNow.click();
 				clearInterval(buyNowInterval);
 				setTimeout(()=>{
-					window.html2canvas(document.body, {
-						withd:window.innerWith,
-						height:window.innerHeight,
-						onrendered: function(canvas){
-							const img = canvas.toDataURL();
-							console.log(img);
-						}
-					});	
-					const maxAmount =nodeIterator(config.maxNumText).textContent.replace(/[^0-9]/ig,"");
-					console.log(`获取到最大购买数量为${maxAmount}`);
-					const purchaseInput = nodeIterator(config.numberText,"Sibling","INPUT")||nodeIterator(config.numberText);
-					console.log(`捕捉到${config.numberText}的INPUT框`);
-					purchaseInput.value=maxAmount;
-					console.log(`${config.numberText}框写入最大购买数量`);
-					const verifyInput = nodeIterator(config.verifyCodeText,"Sibling","INPUT")||nodeIterator(config.verifyCodeText);
-					console.log(`捕捉到${config.verifyCodeText}的INPUT框`);
-					verifyInput.value = "mei";
-					const confirmBtn = nodeIterator(config.confirmText);
-					setTimeout(()=>{
-						confirmBtn.click();
-					},2000)
+					getImg();
 				},2000)
 			}
 		},config.intervalTime)

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>popup页</title>
+	<meta charset="utf-8" />
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<style>
+		body {
+			font-family: 'Microsoft Yahei';
+			width: 500px;
+			min-height: 100px;
+			line-height: 30px;
+			text-align: center;
+		}
+		.form{
+			text-align: left;
+		}
+		.form input{
+			width: 100%;
+			height: 30px;
+			line-height: 30px;
+		}
+		.button{
+			margin: 10px auto;
+		}
+		.button button{
+			height: 40px;
+			line-height: 40px;
+			padding: 0px 8px;
+			background: #46a0fc;
+			border: 0px;
+			border-radius: 5px;
+			color: #fff;
+			font-size: 14px;
+			font-weight: bold;
+		}
+	</style>
+</head>
+
+<body>
+	<h4>由于页面dom结构可能变化，这里用了更复杂的根据文本内容反向查询dom处理</h4>
+	<h4>"http://localhost:3000/", "https://launchpad.binance.com/en/project/*",
+		"https://launchpad.binance.com/cn/project/*"，"http://152.136.95.92/chrome-extension/*"这四个域名下才会自动执行</h4>
+	<h1>插件配置 </h1>
+	<h2>基本配置</h2>
+	<div class="form">
+		<span>查询间隔(ms)：</span>
+		<input type="number" value="" id="intervalTime"></input>
+		<br />
+		<span>购买数量：</span>
+		<input type="number" value="" id="purchaseNum"></input>
+	</div>
+	<h2>基本页面查询</h2>
+	<div class="form">
+		<span>购买按钮文本：</span>
+		<input type="text" value="" id="buyText"></input>
+	</div>
+	<h2>弹框页面查询</h2>
+	<div class="form">
+		<span>确定购买文本：</span>
+		<input type="text" value="" id="confirmText"></input>
+		<br />
+		<span>验证码文本：</span>
+		<input type="text" value="" id="verifyCodeText"></input>
+	</div>
+	<div class="button">
+		<button id="saveConfig">保存配置</button>
+	</div>
+
+	<script type="text/javascript" src="js/jquery-1.8.3.js"></script>
+	<script type="text/javascript" src="js/popup.js"></script>
+</body>
+
+</html>

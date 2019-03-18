@@ -45,12 +45,7 @@ class App extends Component {
 	}
 	verify(){
 		// if(this.state.code.toUpperCase()===this.state.options.txt.toUpperCase()&&this.state.num<=this.state.maxAmount){
-		if(this.state.num<=this.state.maxAmount){	
-			alert("验证成功");
-		}
-		else{
-			alert("验证失败");
-		}
+		alert("点击了confirm按钮")
 	}
 	createCode(length) {  //创建随机数,并生成验证码
         var code = "";
@@ -185,29 +180,6 @@ class App extends Component {
 		}	
 	}	
 	componentDidMount(){
-		// const buyNow = this.nodeIterator("Buy now");
-		// let buyNowInterval = setInterval(()=>{
-		// 	if(!buyNow.disabled){
-		// 		console.log("触发点击buy now 按钮，弹出dialog")
-		// 		buyNow.click();
-		// 		clearInterval(buyNowInterval);
-		// 		setTimeout(()=>{	
-		// 			const maxAmount =this.nodeIterator("Max purchase amount").textContent.replace(/[^0-9]/ig,"");
-		// 			console.log(`获取到最单购买数量为${maxAmount}`);
-		// 			const purchaseInput = this.nodeIterator("Purchase amount","Sibling","INPUT")||this.nodeIterator("Purchase amount");
-		// 			console.log(`捕捉到purchase amount的INPUT框`);
-		// 			purchaseInput.value=maxAmount;
-		// 			console.log(`purchase Input框写入最大购买数量`);
-		// 			const verifyInput = this.nodeIterator("Enter verification code","Sibling","INPUT")||this.nodeIterator("Enter verification code");
-		// 			console.log(`捕捉到verify code的INPUT框`);
-		// 			verifyInput.value = "mei";
-		// 			const confirmBtn = this.nodeIterator("Confirm Purchase");
-		// 			setTimeout(()=>{
-		// 				confirmBtn.click();
-		// 			},2000)
-		// 		},2000)
-		// 	}
-		// },2000)
 		this.countDown();  
 		this.createCode(4);  
 	}
@@ -237,8 +209,9 @@ class App extends Component {
 					Enter verification code
 					<input type="text" onChange={(e)=>{this.handleCode(e)}}/>
 					<canvas id='auth-code' style={{display:"none"}}></canvas>
-					<img src={this.state.imgUrl} alt="识别码图片"/>
-					<button className="refresh" onClick={(e)=>{this.createCode(4,e)}}>刷新验证码</button>
+					<img src="http://pokmtwnjr.bkt.clouddn.com/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20190317122528.png" alt="ss"/>
+					 {/* <img src={this.state.imgUrl} alt="识别码图片"/> */}
+					{/* <button className="refresh" onClick={(e)=>{this.createCode(4,e)}}>刷新验证码</button> */ }
 				</div>
 				<button onClick={(e)=>this.verify(e)}>Confirm Purchase</button>
 			</div>

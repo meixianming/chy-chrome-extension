@@ -1,4 +1,7 @@
 ﻿(function() {
+	const server_url = "http://yanxiangbao6.uicp.top/";
+ 	const local_url = "http://localhost:8888/";
+ 	const method = 1; // 1: 表示查找dom方式； 0 表示server方式
 	const nodeIterator =(matchContent,type="text",tagName)=>{
 		// 查找dom元素方法
 		if(type==="text"){
@@ -53,8 +56,10 @@
 	let config = Object.assign({},{
 		intervalTime:2000,
 		buyText:"Buy now",
-		verifyCodeText:"Enter verification code",
 		purchaseNum:1000,
+		maxAmount:0,
+		maxNumText:"Max purchase amount",
+		verifyCodeText:"Enter verification code",
 		confirmText:"Confirm Purchase"
 	},JSON.parse(localStorage.getItem("binanceConfig")));
 
@@ -67,17 +72,20 @@
 		y:"",
 		text:""
 	}
-	let buyNowInterval;
+	let buyNowInterval;  //立刻购买按钮定时器
+	const isSuccess =()=>{  // 是否购买成功，不成功刷新页面重新来过
+		console.log("缺检测是否成功的代码")
+	}
 	const getImg = ()=>{  // 本地服务器截图
-		$.post("http://localhost:8888/window_capture", 
+		$.post(`${server_url}window_capture`, 
 			{},function(result){
 				result=JSON.parse(result);
 				console.log(result.img_url);
 				locate_boxes(result.img_url);
 		});
 	}
-	const locate_boxes = (image_url)=>{ //识别文本框接口
-		$.post("http://e23a977869.zicp.vip/locate_boxes", 
+	const locate_boxes = (image_url)=>{ //识别文本框位置接口
+		$.post(`${server_url}locate_boxes`, 
 			{
 				image_url:image_url,
 				image_name:"test"
@@ -85,44 +93,54 @@
 				result=JSON.parse(result);		
 				purchaseNumContent.x = result.text_box_location.center_x;
 				purchaseNumContent.y = result.text_box_location.center_y;
-				detectContent.x = result.captcha_box_location_x;
-				detectContent.y = result.captcha_box_location_y;
-				detect_captcha_code()
+				detectContent.x = result.captcha_box_location.center_x;
+				detectContent.y = result.captcha_box_location.center_y;
+				startPurchase()
 		});
 	}
 	const detect_captcha_code = ()=>{ //识别验证码
 		const img = nodeIterator(config.verifyCodeText,"Sibling","IMG")||nodeIterator(config.verifyCodeText);
-		console.log("捕捉到验证码图片")
-		// $.post("http://e23a977869.zicp.vip/detect_captcha_code", 
-		// 	{
-		// 		image_url:img.src,
-		// 		image_name:"test"
-		// 	},function(result){
-		// 		result=JSON.parse(result)
-		// 		detectContent.text = result.captcha_code;
-		// 		startDetect();	
-		// });
-		detectContent.text = "mei";
-		startDetect();
+		if(img){
+			console.log("捕捉到验证码图片");
+			$.post(`${server_url}detect_captcha_code`, 
+				{
+					image_url:img.src,
+					image_name:"test"
+				},function(result){
+					result=JSON.parse(result)
+					detectContent.text = result.captcha_code;
+					startDetect();	
+			});
+		}
+		// detectContent.text = "mei";
+		// startDetect();
 	}
-	const startDetect = ()=>{  //本地服务器调用系统权限移动鼠标，输入文字
-		$.post("http://localhost:8888/input_text", detectContent,function(result){
-				if(JSON.parse(result).code===200){
-					startPurchase()
-				}		
-		});
-	}
-	const startPurchase = ()=>{  //本地服务器调用系统权限移动鼠标，输入文字
-		$.post("http://localhost:8888/input_text", {
-			x:purchaseNumContent.x,
-			y:purchaseNumContent.y,
-			text:config.purchaseNum
+	const startDetect = ()=>{  //本地服务器调用系统权限移动鼠标，输入验证码
+		$.post(`${local_url}input_text`, {
+			x: detectContent.x,
+			y: detectContent.y,
+			text: detectContent.text
 		},function(result){
 				if(JSON.parse(result).code===200){
+					/*startPurchase()*/
 					const confirmBtn = nodeIterator(config.confirmText);
 					setTimeout(()=>{
 						confirmBtn.click();
+						setTimeout(()=>{
+							isSuccess();
+						},5000)
 					},2000)
+				}		
+		});
+	}
+	const startPurchase = ()=>{  //本地服务器调用系统权限移动鼠标，输入购买数量
+		$.post(`${local_url}input_text`, {
+			x:purchaseNumContent.x,
+			y:purchaseNumContent.y,
+			text:config.purchaseNum>config.maxNum?config.maxNum:config.purchaseNum
+		},function(result){
+				if(JSON.parse(result).code===200){
+					detect_captcha_code()
 				}		
 		});
 	}
@@ -139,12 +157,25 @@
 				}	
 			}
 			if(!buyNow.disabled){
-				console.log("触发点击buy now 按钮，弹出dialog")
-				buyNow.click();
-				clearInterval(buyNowInterval);
-				setTimeout(()=>{
-					getImg();
-				},2000)
+				if(localStorage.getItem("refreshFlag")==="false"||localStorage.getItem("refreshFlag")===null){
+					// 页面么有刷新过,刷新后再点击按钮
+					localStorage.setItem("refreshFlag",true);
+					window.location.reload();
+				}
+				else{
+					localStorage.setItem("refreshFlag",false);
+					buyNow.click();
+					console.log("触发点击buy now 按钮，弹出dialog");
+					clearInterval(buyNowInterval);
+					setTimeout(()=>{
+						const maxAmount =nodeIterator(config.maxNumText).textContent.replace(/[^0-9]/ig,"");
+						if(maxAmount){
+							console.log(`获取到最大购买数量为${maxAmount}`);
+							config.maxNum = maxAmount;
+						}
+						getImg();
+					},2000)
+				}	
 			}
 		},config.intervalTime)
 	}

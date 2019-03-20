@@ -4,7 +4,10 @@ $('#saveConfig').click(() => {
 	config = {
 		intervalTime:$("#intervalTime").val(),
 		buyText:$("#buyText").val(),
+		verifyCodeType:$("#verifyCodeType").val(),
 		purchaseNum:$("#purchaseNum").val(),
+		maxNumText:$("#maxNumText").val(),
+		numberText:$("#numberText").val(),
 		verifyCodeText:$("#verifyCodeText").val(),
 		confirmText:$("#confirmText").val()
 	}
@@ -17,6 +20,19 @@ $('#saveConfig').click(() => {
 			iconUrl: 'icon.png',
 			title: 'tip',
 			message: '保存配置成功！'
+		});
+	});
+});
+$('#manualStart').click(() => {
+	// popup主动发消息给content-script
+	sendMessageToContentScript({cmd:'manualStart'}, function(response){
+		console.log('来自content的回复：'+response);
+		// alert("配置保存成功！")
+		chrome.notifications.create(null, {
+			type: 'basic',
+			iconUrl: 'icon.png',
+			title: 'tip',
+			message: '手动开始！'
 		});
 	});
 });
@@ -42,7 +58,10 @@ function setInputValue(config){
 	// 文本框赋值
 	$("#intervalTime").val(config.intervalTime);
 	$("#buyText").val(config.buyText);
+	$("#verifyCodeType").val(config.verifyCodeType);
 	$("#purchaseNum").val(config.purchaseNum);
+	$("#maxNumText").val(config.maxNumText);
+	$("#numberText").val(config.numberText);
 	$("#verifyCodeText").val(config.verifyCodeText);
 	$("#confirmText").val(config.confirmText);
 }

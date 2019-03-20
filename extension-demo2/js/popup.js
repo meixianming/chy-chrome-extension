@@ -5,6 +5,7 @@ $('#saveConfig').click(() => {
 		intervalTime:$("#intervalTime").val(),
 		buyText:$("#buyText").val(),
 		purchaseNum:$("#purchaseNum").val(),
+		maxNumText:$("#maxNumText").val(),
 		verifyCodeText:$("#verifyCodeText").val(),
 		confirmText:$("#confirmText").val()
 	}
@@ -43,6 +44,7 @@ function setInputValue(config){
 	$("#intervalTime").val(config.intervalTime);
 	$("#buyText").val(config.buyText);
 	$("#purchaseNum").val(config.purchaseNum);
+	$("#maxNumText").val(config.maxNumText);
 	$("#verifyCodeText").val(config.verifyCodeText);
 	$("#confirmText").val(config.confirmText);
 }
